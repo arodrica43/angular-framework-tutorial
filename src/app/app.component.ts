@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CardComponent } from './components/card/card.component';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ApiService } from './services/api.service';
 
 @Component({
   selector: 'app-root',
@@ -10,12 +11,14 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit{
   title = 'UMS';
 
   showModal = false;
   userForm;
-  constructor(private fb: FormBuilder) {
+  users: any;
+
+  constructor(private fb: FormBuilder, private api: ApiService) {
     this.userForm = this.fb.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -24,10 +27,21 @@ export class AppComponent {
         Validators.minLength(6)
       ]]
     });
+    
+  }
+
+  async ngOnInit() {
+    this.users = await this.api.listUsers()
+    console.log(this.users)
+    this.users.map((x: any) => Object.assign(x, {img : "https://i.pravatar.cc/320?img=" + this.generateRandomValue(x.name)}))
+  }
+
+  generateRandomValue(name: string){
+    return name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 71;
   }
 
 
-  openCreateUserForm() {
+  async openCreateUserForm() {
     //this.userForm.reset();
     this.showModal = true;
   }
@@ -36,7 +50,7 @@ export class AppComponent {
     this.showModal = false;
   }
 
-  createUser(){
+  async createUser(){
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
       return;
@@ -44,10 +58,7 @@ export class AppComponent {
 
     const user = this.userForm.getRawValue();
 
-    console.log('Creating user:', user);
-
-    // Call your API here, e.g.
-    // this.userService.createUser(user).subscribe(...);
+    let result = await this.api.createrUser(user);
 
     this.closeModal();
   }

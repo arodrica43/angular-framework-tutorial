@@ -184,19 +184,16 @@
         <button type="button" class="btn btn-light m-3" (click)="openCreateUserForm()">
           Create User
        </button>
-        <app-card
-        image="https://i.pravatar.cc/320?img=1"
-        name="Alice Johnson"
-        description="Frontend developer passionate about accessible interfaces."
-        link="https://example.com/alice">
-      </app-card>
-
-      <app-card
-        image="https://i.pravatar.cc/320?img=2"
-        name="Bob Smith"
-        description="Product designer focused on simple, user-friendly experiences."
-        link="https://example.com/bob">
-      </app-card>
+           @for (user of users; track user.name) {
+             <app-card
+              image="{{user.img}}"
+              name="{{user.name}}"
+              description="Frontend developer passionate about accessible interfaces."
+              link="https://example.com/alice">
+            </app-card>
+          } @empty {
+            <li>There are no items.</li>
+          }
   </div>
 </main>
 
